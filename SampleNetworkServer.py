@@ -31,7 +31,7 @@ class SmartNetworkThermometer (threading.Thread) :
         with open ('pubkey.pem', 'rb') as p:
             self.publickey = rsa.PublicKey.load_pkcs1(p.read())
         with open ('privkey.pem', 'rb') as p:
-            self.__privatekey = rsa.PrivateKey.load_pkcs1(p.read())
+            self.privatekey = rsa.PrivateKey.load_pkcs1(p.read())
         
         self.serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.serverSocket.bind(("127.0.0.1", port))
@@ -105,7 +105,7 @@ class SmartNetworkThermometer (threading.Thread) :
                 msg, addr = self.serverSocket.recvfrom(1024)
                 if len(msg) > 22:
                     print("this is an encrypted message",msg)
-                    decrypted_msg = rsa.decrypt(msg, self.__privatekey)
+                    decrypted_msg = rsa.decrypt(msg, self.privatekey)
                     decoded_msg = decrypted_msg.decode("utf-8").strip()
                     print(decoded_msg)
                     cmds = decoded_msg.split(' ')

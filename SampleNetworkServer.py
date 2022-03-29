@@ -14,14 +14,6 @@ import string
 import rsa 
 from decouple import config # used for env file
 
-#def servergenerateKeys():
-#    print("this ran")
-#    (publickey, privatekey) = rsa.newkeys(2048)
-#    with open ('pubkey.pem', 'wb') as p:
-#        p.write(publickey.save_pkcs1('PEM'))
-#    with open ('privkey.pem', 'wb') as p:
-#        p.write(privatekey.save_pkcs1('PEM'))
-
 
 class SmartNetworkThermometer (threading.Thread) :
     open_cmds = ["AUTH", "LOGOUT"]
@@ -39,7 +31,7 @@ class SmartNetworkThermometer (threading.Thread) :
         with open ('pubkey.pem', 'rb') as p:
             self.publickey = rsa.PublicKey.load_pkcs1(p.read())
         with open ('privkey.pem', 'rb') as p:
-            self.privatekey = rsa.PrivateKey.load_pkcs1(p.read())
+            self.__privatekey = rsa.PrivateKey.load_pkcs1(p.read())
         
         self.serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.serverSocket.bind(("127.0.0.1", port))
@@ -84,10 +76,7 @@ class SmartNetworkThermometer (threading.Thread) :
                                 self.serverSocket.sendto(encrypted_token, addr)
                             else:
                                 pass
-                        
-                        
-                        #encrypt the token here then encode and then send it
-           
+       
                         #print (self.tokens[-1])
                 elif cs[0] == "LOGOUT":
                     if cs[1] in self.tokens :
@@ -109,20 +98,19 @@ class SmartNetworkThermometer (threading.Thread) :
 
 
     def run(self) : #the running function
-        #servergenerateKeys()
+
         while True : 
             try :
 
                 msg, addr = self.serverSocket.recvfrom(1024)
                 if len(msg) > 22:
-                    print("this worked")
-                    decrypted_msg = rsa.decrypt(msg, self.privatekey)
+                    print("this is an encrypted message",msg)
+                    decrypted_msg = rsa.decrypt(msg, self.__privatekey)
                     decoded_msg = decrypted_msg.decode("utf-8").strip()
                     print(decoded_msg)
                     cmds = decoded_msg.split(' ')
-
                     if len(cmds) == 1 : # protected commands case
-                        print("thiswastoken")
+                        print("this was token", cmds)
                         semi = decoded_msg.find(';')
                         if semi != -1 : #if we found the semicolon
                             #print (msg)
@@ -133,7 +121,7 @@ class SmartNetworkThermometer (threading.Thread) :
                         else :
                                 self.serverSocket.sendto(b"Bad Command\n", addr)
                     elif len(cmds) == 2 :
-                        print("this was auth")
+                        print("this was a password", cmds)
                         if cmds[0] in self.open_cmds : #if its AUTH or LOGOUT
                             self.processCommands(decoded_msg, addr) 
                         else :

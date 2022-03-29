@@ -28,7 +28,7 @@ class SmartNetworkThermometer (threading.Thread) :
         self.updateTemperature()
         self.__tokens = []
         
-        with open ('/content/Incubator/pubkey.pem, 'rb') as p:
+        with open ('/content/Incubator/pubkey.pem', 'rb') as p:
             self.publickey = rsa.PublicKey.load_pkcs1(p.read())
         with open ('/content/Incubator/privkey.pem', 'rb') as p:
             self.privatekey = rsa.PrivateKey.load_pkcs1(p.read())

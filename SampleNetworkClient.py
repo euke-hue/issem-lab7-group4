@@ -35,11 +35,12 @@ class SimpleNetworkClient :
 
         self.ani = animation.FuncAnimation(self.fig, self.updateInfTemp, interval=500)
         self.ani2 = animation.FuncAnimation(self.fig, self.updateIncTemp, interval=500)
-        with open ('pubkey.pem', 'rb') as p:
+        
+        with open ('/content/Incubator/pubkey.pem, 'rb') as p:
             self.publickey = rsa.PublicKey.load_pkcs1(p.read())
-        with open ('privkey.pem', 'rb') as p:
+        with open ('/content/Incubator/privkey.pem', 'rb') as p:
             self.privatekey = rsa.PrivateKey.load_pkcs1(p.read())
-
+        
     def updateTime(self) :
         now = time.time()
         if math.floor(now) > math.floor(self.lastTime) :

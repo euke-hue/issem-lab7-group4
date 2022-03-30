@@ -69,11 +69,12 @@ class SmartNetworkThermometer (threading.Thread) :
             if len(cs) == 2 : #should be either AUTH or LOGOUT
                 if cs[0] == "AUTH":
                     if cs[1] == config('SECRET_KEY') :
-                            print("password is correct! sending the token now")
+                            print("NETWORK SERVER: password is correct! sending the token now")
                             if len(self.__tokens) < 1:
                                 self.__tokens.append(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16)))
                                 encoded_token = self.__tokens[-1].encode("utf-8")
                                 encrypted_token = rsa.encrypt(encoded_token, self.publickey)
+                                print("NETWORK SERVER: This is the encrypted token!", encrypted_token)
                                 self.serverSocket.sendto(encrypted_token, addr)
                             else:
                                 pass
@@ -105,23 +106,26 @@ class SmartNetworkThermometer (threading.Thread) :
 
                 msg, addr = self.serverSocket.recvfrom(1024)
                 if len(msg) > 22:
-                    #print("received encrypted message: ", msg)
+                    print("NETWORK SERVER: RECEIVED ENCRYPTED MESSAGE -> ", msg)
                     decrypted_msg = rsa.decrypt(msg, self.privatekey)
                     decoded_msg = decrypted_msg.decode("utf-8").strip()
+                    print("NETWORK SERVER: Successfully DECRYPTED MESSAGE -> ",decoded_msg)
                     cmds = decoded_msg.split(' ')
                     if len(cmds) == 1 : # protected commands case
                         
                         semi = decoded_msg.find(';')
                         if semi != -1 : #if we found the semicolon
-                            #print (msg)
+                            print("NETWORK SERVER: THIS HAS A TOKEN!->",decoded_msg[:semi] )
                             if decoded_msg[:semi] in self.__tokens : #if its a valid token
+                               
                                 self.processCommands(decoded_msg[semi+1:], addr)
+                                print("NETWORK SERVER: And the Token is valid!")
                             else :
                                 self.serverSocket.sendto(b"Bad Token\n", addr)
                         else :
                                 self.serverSocket.sendto(b"Bad Command\n", addr)
                     elif len(cmds) == 2 :
-                        print("successfully decrypted password!")
+                        print("NETWORK SERVER: successfully decrypted password!")
                         if cmds[0] in self.open_cmds : #if its AUTH or LOGOUT
                             self.processCommands(decoded_msg, addr) 
                         else :

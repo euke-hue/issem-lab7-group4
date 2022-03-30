@@ -56,9 +56,11 @@ class SimpleNetworkClient :
         #the token that is passed in from updateInf or updateInc should be from the token variables
         token = tok +";"+"GET_TEMP"
         encoded_token = token.encode("utf-8")
+        
         encryptedtoken = rsa.encrypt(encoded_token, self.publickey)
         s = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         s.sendto(encryptedtoken, ("127.0.0.1", p))
+        print("SAMPLE CLIENT: Sending the encrypted token ->", encryptedtoken)
         msg, addr = s.recvfrom(1024)
         #the mssage you receive SHOULD just be the inf of inc temp
         m = msg.decode("utf-8").strip()
@@ -79,9 +81,11 @@ class SimpleNetworkClient :
         #receive the token here
         msg, addr = s.recvfrom(1024)
         #decrypt the received token        
+        print("SAMPLE CLIENT: Received encrypted token ->", msg)
         decrypt_msg = rsa.decrypt(msg, self.privatekey)
         #decode the token
         decoded_msg = decrypt_msg.decode("utf-8")
+        print("SAMPLE CLIENT: Decrypted and decoded token ->", decoded_msg)
         #strip the token and return it so it can get stored in the self.infToken or self.incToken
 
         return decoded_msg.strip()

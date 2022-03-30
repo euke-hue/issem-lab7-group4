@@ -133,24 +133,13 @@ class SmartNetworkThermometer (threading.Thread) :
                 else:                
                     msg = msg.decode("utf-8").strip()
                     cmds = msg.split(' ')
-                    if len(cmds) == 1 : # protected commands case
-                        semi = msg.find(';')
-                        if semi != -1 : #if we found the semicolon
-                            #print (msg)
-                            if msg[:semi] in self.__tokens : #if its a valid token
-                                self.processCommands(msg[semi+1:], addr)
-                            else :
-                                self.serverSocket.sendto(b"Bad Token\n", addr)
-                        else :
-                                self.serverSocket.sendto(b"Bad Command\n", addr)
-                    elif len(cmds) == 2 :
-                        if cmds[0] in self.open_cmds : #if its AUTH or LOGOUT
+                    if len(cmds) == 2 :
+                        if cmds[0] == "LOGOUT": #only logout unencrypted
                             self.processCommands(msg, addr) 
                         else :
-                            self.serverSocket.sendto(b"Authenticate First\n", addr)
+                            pass
                     else :
-                        # otherwise bad command
-                        self.serverSocket.sendto(b"Bad Command\n", addr)
+                         pass
     
             except IOError as e :
                 if e.errno == errno.EWOULDBLOCK :

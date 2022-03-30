@@ -62,7 +62,7 @@ class SimpleNetworkClient :
         msg, addr = s.recvfrom(1024)
         #the mssage you receive SHOULD just be the inf of inc temp
         m = msg.decode("utf-8").strip()
-        print("The temperature received is: ", m)
+        print("SAMPLE CLIENT: The temperature received is: ", m)
         return (float(m))
 
     def authenticate(self, p) :
@@ -72,7 +72,7 @@ class SimpleNetworkClient :
         encoded_password = password.encode("utf-8")
         #encrypt password with rsa public key
         encryptedpassword = rsa.encrypt(encoded_password, self.publickey)
-        print("encrypted password is encrypted: ", encryptedpassword)
+        print("SAMPLE CLIENT: encrypted password: ", encryptedpassword)
         s = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         s.sendto(encryptedpassword, ("127.0.0.1", p))
         
